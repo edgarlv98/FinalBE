@@ -2,8 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-
-const config = require('../config.js')
+const config = require('../config')
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -41,47 +40,22 @@ const userSchema = new mongoose.Schema({
       required: true
     }
   }]
-},{
-  toObject: {
-    virtuals: true
-  },
-  toJSON: {
-    virtuals: true
-  }
 })
-
-// una relacion entre dos Schemas, no lo guarda, es virtual
-userSchema.virtual('todos', {
-  ref: 'Todo',
-  localField: '_id',
-  foreignField: 'createdBy'
-})
-
-userSchema.methods.toJSON = function() {
-  const user = this
-  const userObject = user.toObject()
-
-  delete userObject.password
-  delete userObject.tokens
-
-  return userObject
-}
-
 
 userSchema.statics.findByCredentials = function(email, password) {
   return new Promise( function(resolve, reject) {
     User.findOne({ email }).then(function(user) {
       if( !user ) {
-        return reject('User does not exist')
+        return reject('El usuario no existe')
       }
       bcrypt.compare(password, user.password).then(function(match) {
         if(match) {
           return resolve(user)
         } else {
-          return reject('Wrong password!')
+          return reject('Contraseña o usuario incorrecto')
         }
       }).catch( function(error) {
-        return reject('Wrong password!')
+        return reject('Contraseña o usuario incorrecto')
       })
     })
   })
@@ -110,10 +84,11 @@ userSchema.pre('save', function(next) {
       return next(error)
     })
   } else {
-    next()
+    next()  
   }
 })
 
 const User = mongoose.model('User', userSchema)
 
 module.exports = User
+

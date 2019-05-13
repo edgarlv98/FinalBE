@@ -1,28 +1,38 @@
 const express = require('express')
 const router = express.Router()
 
-const users = require('./controllers/users.js')
-const todos = require('./controllers/todos.js')
+const jugador = require('./controllers/jugador')
+const equipo = require('./controllers/equipo')
+const users = require('./controllers/users')
 const auth = require('./middleware/auth')
 
-router.get('/users', auth, users.getUser)
+//Rutas para controlador usuario
+router.get('/users/:id', auth, users.getUser)
+router.get('/users', auth, users.getUsers)
 router.post('/users/login', users.login)
-router.post('/users/logout', auth, users.logout)
-router.post('/users', users.createUser)  // signup
-router.patch('/users', auth, users.updateUser)
-router.delete('/users', auth, users.deleteUser)
+router.post('/users/logout', users.logout)
+router.post('/users', users.createUser)
+router.patch('/users/:id', users.updateUser)
+router.delete('/users/:id', users.deleteUser)
 
-router.get('/todos/:id', auth, todos.getTodo)
-router.get('/todos', auth, todos.getTodos)
-router.post('/todos', auth, todos.createTodo)
-router.patch('/todos/:id', auth, todos.updateTodo)
-router.delete('/todos/:id', auth, todos.deleteTodo)
+//Rutas para controlador jugadores
+router.get('/consultar/jugadores', jugador.getJugadores)
+router.get('/consultar/jugadores/:id', jugador.getJugador)
+router.post('/editar/jugadores', auth, jugador.createJugador)
+router.patch('/editar/jugadores/:id', auth, jugador.updateJugador)
+router.delete('/editar/jugadores/:id', auth, jugador.deleteJugador)
+
+//Rutas para controlador equipos
+router.get('/consultar/equipos', equipo.getEquipos)
+router.get('/consultar/equipos/:id', equipo.getEquipo)
+router.post('/editar/equipos', auth, equipo.createEquipo)
+router.patch('/editar/equipos/:id', auth, equipo.updateEquipo)
+router.delete('/editar/equipos/:id', auth, equipo.deleteEquipo)
 
 router.get('*', function(req, res) {
-  res.send({
-    error: 'This route does not exist, try /users or /todos'
-  })
+    res.send({
+      error: 'Esta ruta no existe'
+    })
 })
 
 module.exports = router
-
